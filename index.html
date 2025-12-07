@@ -27,18 +27,9 @@
 <body>
   <div class="card">
     <h1>Reporte rápido — Sanitarios</h1>
-    
     <p class="sub">Usa este formulario para reportar problemas del baño. Es rápido y puede ser anónimo.</p>
 
-    
-
-
-    <label for="tipo">En que baño se encuentra?</label>
-    <select id="tipo">
-      <option value="1">Baño Principal</option>
-      <option value="2">Baño Secundario</option>
-      <option value="3">Baño Terceario</option>
-    </select>
+    <div id="locationBox" class="meta">Ubicación: <strong id="locationText">—</strong></div>
 
     <label for="tipo">Tipo de problema</label>
     <select id="tipo">
@@ -71,12 +62,13 @@
 
 <script>
   // -------- CONFIG --------
-  
-  const webhookUrl = "jesalex022008@gmail.com"; // 
+  // Si tienes un webhook para recibir POST (JSON + multipart), pega la URL aquí.
+  // Ejemplo: const webhookUrl = "https://hooks.example.com/tu-webhook";
+  const webhookUrl = "jesalex022008@gmail.com"; // <- PON AQUI TU WEBHOOK si tienes. Si queda vacío, el botón webhook se ocultará.
   // ------------------------
 
   const params = new URLSearchParams(location.search);
-  const locationId = params.get('id') || params.get('loc') || "";
+  const locationId = params.get('id') || params.get('loc') || "Ciudad Mante Tamauilpas";
   document.getElementById('locationText').textContent = locationId;
 
   const fotoInput = document.getElementById('foto');
@@ -88,11 +80,9 @@
     const url = URL.createObjectURL(f);
     preview.src = url;
     preview.classList.remove('hidden');
-    
   });
 
   // Envío por correo (mailto)
-  
   document.getElementById('btnMail').addEventListener('click', () => {
     const tipo = document.getElementById('tipo').value;
     const desc = document.getElementById('descripcion').value || "(sin descripción)";
@@ -103,6 +93,7 @@
     body = encodeURIComponent(body);
 
     
+    const to = "jesalex022008@gmail.com"; // <-- opcional: correo fijo de recepción
     const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
     window.location.href = mailto;
   });
@@ -153,7 +144,8 @@
   });
 
   
- 
+
+
 
 </script>
 </body>
