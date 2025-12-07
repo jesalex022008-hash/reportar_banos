@@ -27,9 +27,18 @@
 <body>
   <div class="card">
     <h1>Reporte rápido — Sanitarios</h1>
+    
     <p class="sub">Usa este formulario para reportar problemas del baño. Es rápido y puede ser anónimo.</p>
 
-    <div id="locationBox" class="meta">Ubicación: <strong id="locationText">—</strong></div>
+    
+
+
+    <label for="tipo">En que baño se encuentra?</label>
+    <select id="tipo">
+      <option value="1">Baño Principal</option>
+      <option value="2">Baño Secundario</option>
+      <option value="3">Baño Terceario</option>
+    </select>
 
     <label for="tipo">Tipo de problema</label>
     <select id="tipo">
@@ -59,21 +68,15 @@
 
     <div id="webhookInfo" class="small hidden">Nota: el envío por webhook sube la foto y datos al servidor configurado.</div>
 
-    <footer>
-      <div>¿Eres administrador? Puedes generar un QR que apunte a esta página añadiendo <code>?id=BAÑO-1</code> por ejemplo:</div>
-      <div class="small">Ejemplo de URL para QR: <code>https://tudominio/reporte_banio.html?id=BAÑO-1</code></div>
-    </footer>
-  </div>
 
 <script>
   // -------- CONFIG --------
-  // Si tienes un webhook para recibir POST (JSON + multipart), pega la URL aquí.
-  // Ejemplo: const webhookUrl = "https://hooks.example.com/tu-webhook";
-  const webhookUrl = ""; // <- PON AQUI TU WEBHOOK si tienes. Si queda vacío, el botón webhook se ocultará.
+  
+  const webhookUrl = "jesalex022008@gmail.com"; // 
   // ------------------------
 
   const params = new URLSearchParams(location.search);
-  const locationId = params.get('id') || params.get('loc') || "Sin especificar";
+  const locationId = params.get('id') || params.get('loc') || "";
   document.getElementById('locationText').textContent = locationId;
 
   const fotoInput = document.getElementById('foto');
@@ -85,9 +88,11 @@
     const url = URL.createObjectURL(f);
     preview.src = url;
     preview.classList.remove('hidden');
+    
   });
 
   // Envío por correo (mailto)
+  
   document.getElementById('btnMail').addEventListener('click', () => {
     const tipo = document.getElementById('tipo').value;
     const desc = document.getElementById('descripcion').value || "(sin descripción)";
@@ -97,9 +102,7 @@
     let body = `Ubicación: ${locationId}\nTipo: ${tipo}\nHora: ${ts}\nAnónimo: ${anon ? "Sí" : "No"}\n\nDescripción:\n${desc}\n\n(Adjunta foto manualmente si tu app de correo lo permite)`;
     body = encodeURIComponent(body);
 
-    // Si el usuario no es anónimo y el navegador soporta mailto con correo predefinido,
-    // dejamos el mail en vacio para que la app pida la cuenta; si quieres enviar a un correo fijo, reemplaza "" por "mantenimiento@tuescuela.edu.mx"
-    const to = ""; // <-- opcional: correo fijo de recepción
+    
     const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
     window.location.href = mailto;
   });
@@ -150,10 +153,7 @@
   });
 
   
-  (function showQRexample(){
-    const url = location.origin + location.pathname + "?id=BAÑO-1";
-    console.info("Ejemplo de URL para generar QR:", url);
-  })();
+ 
 
 </script>
 </body>
