@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Reporte rápido - Sanitarios</title>
+<style>
+  :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{margin:0;padding:18px;background:#f6f7fb;color:#111}
+  .card{max-width:720px;margin:10px auto;padding:18px;border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(12,20,40,0.08)}
+  h1{margin:0 0 8px;font-size:20px}
+  p.sub{margin:0 0 16px;color:#555}
+  label{display:block;margin:10px 0 6px;font-weight:600;font-size:13px}
+  select,input[type="text"],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e0e6f0;background:#fafbfd;box-sizing:border-box}
+  textarea{min-height:100px;resize:vertical}
+  .row{display:flex;gap:8px}
+  .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
+  .btn-primary{background:#2563eb;color:#fff}
+  .btn-secondary{background:#e6eefc;color:#08306b}
+  .small{font-size:13px;color:#666;margin-top:8px}
+  .img-preview{max-width:100%;border-radius:8px;margin-top:8px}
+  footer{margin-top:14px;font-size:13px;color:#444}
+  .meta{background:#f0f4ff;padding:8px;border-radius:8px;margin-top:12px;color:#153}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Reporte rápido — Sanitarios</h1>
+    <p class="sub">Usa este formulario para reportar problemas del baño. Es rápido y puede ser anónimo.</p>
+
+    <div id="locationBox" class="meta">Ubicación: <strong id="locationText">—</strong></div>
+
+    <label for="tipo">Tipo de problema</label>
+    <select id="tipo">
+      <option value="Falta de papel">Falta de papel</option>
+      <option value="Fuga de agua">Fuga de agua</option>
+      <option value="Suciedad">Suciedad</option>
+      <option value="Luz apagada">Luz apagada</option>
+      <option value="Inodoro tapado">Inodoro tapado</option>
+      <option value="Mal olor">Mal olor</option>
+      <option value="Otro">Otro...</option>
+    </select>
+
+    <label for="descripcion">Descripción (opcional)</label>
+    <textarea id="descripcion" placeholder="Describe brevemente el problema (opcional)"></textarea>
+
+    <label for="foto">Foto (opcional) — puedes tomar foto desde el móvil</label>
+    <input id="foto" type="file" accept="image/*" capture="environment" />
+
+    <img id="preview" class="img-preview hidden" alt="Vista previa de la foto" />
+
+    <div class="row" style="margin-top:12px">
+      <button id="btnMail" class="btn btn-primary">Enviar por correo</button>
+      <button id="btnWebhook" class="btn btn-secondary hidden">Enviar a mantenimiento (webhook)</button>
+    </div>
+
+    <div class="small">Anónimo: <input id="anon" type="checkbox" checked /> (si está marcado, no se incluirá tu correo en el mail)</div>
+
+    <div id="webhookInfo" class="small hidden">Nota: el envío por webhook sube la foto y datos al servidor configurado.</div>
+
+    <footer>
+      <div>¿Eres administrador? Puedes generar un QR que apunte a esta página añadiendo <code>?id=BAÑO-1</code> por ejemplo:</div>
+      <div class="small">Ejemplo de URL para QR: <code>https://tudominio/reporte_banio.html?id=BAÑO-1</code></div>
+    </footer>
+  </div>
+
+<script>
+  // -------- CONFIG --------
+  // Si tienes un webhook para recibir POST (JSON + multipart), pega la URL aquí.
+  // Ejemplo: const webhookUrl = "https://hooks.example.com/tu-webhook";
+  const webhookUrl = ""; // <- PON AQUI TU WEBHOOK si tienes. Si queda vacío, el botón webhook se ocultará.
+  // ------------------------
+
+  const params = new URLSearchParams(location.search);
+  const locationId = params.get('id') || params.get('loc') || "Sin especificar";
+  document.getElementById('locationText').textContent = locationId;
+
+  const fotoInput = document.getElementById('foto');
+  const preview = document.getElementById('preview');
+
+  fotoInput.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) { preview.classList.add('hidden'); return; }
+    const url = URL.createObjectURL(f);
+    preview.src = url;
+    preview.classList.remove('hidden');
+  });
+
+  // Envío por correo (mailto)
+  document.getElementById('btnMail').addEventListener('click', () => {
+    const tipo = document.getElementById('tipo').value;
+    const desc = document.getElementById('descripcion').value || "(sin descripción)";
+    const anon = document.getElementById('anon').checked;
+    const ts = new Date().toLocaleString();
+    const subject = encodeURIComponent(`Reporte - ${locationId} - ${tipo}`);
+    let body = `Ubicación: ${locationId}\nTipo: ${tipo}\nHora: ${ts}\nAnónimo: ${anon ? "Sí" : "No"}\n\nDescripción:\n${desc}\n\n(Adjunta foto manualmente si tu app de correo lo permite)`;
+    body = encodeURIComponent(body);
+
+    // Si el usuario no es anónimo y el navegador soporta mailto con correo predefinido,
+    // dejamos el mail en vacio para que la app pida la cuenta; si quieres enviar a un correo fijo, reemplaza "" por "mantenimiento@tuescuela.edu.mx"
+    const to = ""; // <-- opcional: correo fijo de recepción
+    const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
+    window.location.href = mailto;
+  });
+
+  // Envío por webhook (si está configurado)
+  const btnWebhook = document.getElementById('btnWebhook');
+  if (webhookUrl) {
+    btnWebhook.classList.remove('hidden');
+    document.getElementById('webhookInfo').classList.remove('hidden');
+  }
+
+  btnWebhook.addEventListener('click', async () => {
+    if (!webhookUrl) return alert("No hay webhook configurado. Edita el archivo y añade webhookUrl.");
+
+    const tipo = document.getElementById('tipo').value;
+    const desc = document.getElementById('descripcion').value || "";
+    const anon = document.getElementById('anon').checked;
+    const ts = new Date().toISOString();
+
+    const formData = new FormData();
+    formData.append('ubicacion', locationId);
+    formData.append('tipo', tipo);
+    formData.append('descripcion', desc);
+    formData.append('anonimo', anon ? "true" : "false");
+    formData.append('timestamp', ts);
+
+    const file = fotoInput.files && fotoInput.files[0];
+    if (file) formData.append('foto', file, file.name);
+
+    btnWebhook.disabled = true;
+    btnWebhook.textContent = "Enviando...";
+
+    try {
+      const resp = await fetch(webhookUrl, { method: 'POST', body: formData });
+      if (!resp.ok) throw new Error("Error en el servidor: " + resp.status);
+      alert("Reporte enviado correctamente. ¡Gracias!");
+      // reset simple:
+      document.getElementById('descripcion').value = "";
+      fotoInput.value = "";
+      preview.classList.add('hidden');
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo enviar el reporte (ver consola). Si no tienes webhook, usa 'Enviar por correo'.");
+    } finally {
+      btnWebhook.disabled = false;
+      btnWebhook.textContent = "Enviar a mantenimiento (webhook)";
+    }
+  });
+
+  
+  (function showQRexample(){
+    const url = location.origin + location.pathname + "?id=BAÑO-1";
+    console.info("Ejemplo de URL para generar QR:", url);
+  })();
+
+</script>
+</body>
+</html>
