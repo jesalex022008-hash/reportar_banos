@@ -6,21 +6,21 @@
 <title>Reporte rápido - Sanitarios</title>
 <style>
   :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{margin:0;padding:18px;background:#f6f7fb;color:#111}
-  .card{max-width:720px;margin:10px auto;padding:18px;border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(12,20,40,0.08)}
+  body{margin:0;padding:18px;background:#a14040;color:#ff3535}
+  .card{max-width:720px;margin:10px auto;padding:18px;border-radius:12px;background:#ffd1c7;box-shadow:0 6px 18px rgba(236, 72, 72, 0.824)}
   h1{margin:0 0 8px;font-size:20px}
   p.sub{margin:0 0 16px;color:#555}
   label{display:block;margin:10px 0 6px;font-weight:600;font-size:13px}
-  select,input[type="text"],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e0e6f0;background:#fafbfd;box-sizing:border-box}
+  select,input[type="text"],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e0e6f0;background:#fdfafa;box-sizing:border-box}
   textarea{min-height:100px;resize:vertical}
   .row{display:flex;gap:8px}
   .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
-  .btn-primary{background:#2563eb;color:#fff}
+  .btn-primary{background:#eb3925;color:#fff}
   .btn-secondary{background:#e6eefc;color:#08306b}
   .small{font-size:13px;color:#666;margin-top:8px}
   .img-preview{max-width:100%;border-radius:8px;margin-top:8px}
   footer{margin-top:14px;font-size:13px;color:#444}
-  .meta{background:#f0f4ff;padding:8px;border-radius:8px;margin-top:12px;color:#153}
+  .meta{background:#fff0f0;padding:8px;border-radius:8px;margin-top:12px;color:#153}
   .hidden{display:none}
 </style>
 </head>
@@ -29,7 +29,7 @@
     <h1>Reporte rápido — Sanitarios</h1>
     <p class="sub">Usa este formulario para reportar problemas del baño. Es rápido y puede ser anónimo.</p>
 
-    <div id="locationBox" class="meta">Ubicación: <strong id="locationText">—</strong></div>
+    <div id="locationBox" class="meta">Institucion: <strong id="locationText">—</strong></div>
 
     <label for="tipo">Tipo de problema</label>
     <select id="tipo">
@@ -68,7 +68,7 @@
   // ------------------------
 
   const params = new URLSearchParams(location.search);
-  const locationId = params.get('id') || params.get('loc') || "Ciudad Mante Tamauilpas";
+  const locationId = params.get('id') || params.get('loc') || "CBTIS15";
   document.getElementById('locationText').textContent = locationId;
 
   const fotoInput = document.getElementById('foto');
