@@ -16,7 +16,6 @@
   .row{display:flex;gap:8px}
   .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
   .btn-primary{background:#eb3925;color:#fff}
-  .btn-secondary{background:#e6eefc;color:#08306b}
   .small{font-size:13px;color:#666;margin-top:8px}
   .img-preview{max-width:100%;border-radius:8px;margin-top:8px}
   footer{margin-top:14px;font-size:13px;color:#444}
@@ -29,7 +28,7 @@
     <h1>Reporte rápido — Sanitarios</h1>
     <p class="sub">Usa este formulario para reportar problemas del baño. Es rápido y puede ser anónimo.</p>
 
-    <div id="locationBox" class="meta">Institucion: <strong id="locationText">—</strong></div>
+    <div id="locationBox" class="meta">Institución: <strong id="locationText">—</strong></div>
 
     <label for="tipo">Tipo de problema</label>
     <select id="tipo">
@@ -52,17 +51,12 @@
 
     <div class="row" style="margin-top:12px">
       <button id="btnMail" class="btn btn-primary">Enviar por correo</button>
-      <button id="btnWebhook" class="btn btn-secondary hidden">Enviar a mantenimiento (webhook)</button>
     </div>
 
     <div class="small">Anónimo: <input id="anon" type="checkbox" checked /> (si está marcado, no se incluirá tu correo en el mail)</div>
 
-    <div id="webhookInfo" class="small hidden">Nota: el envío por webhook sube la foto y datos al servidor configurado.</div>
-
 
 <script>
-  
-  const webhookUrl = ""; 
 
   const params = new URLSearchParams(location.search);
   const locationId = params.get('id') || params.get('loc') || "CBTIS15";
@@ -79,7 +73,6 @@
     preview.classList.remove('hidden');
   });
 
-  // Envío por correo (mailto)
   document.getElementById('btnMail').addEventListener('click', () => {
     const tipo = document.getElementById('tipo').value;
     const desc = document.getElementById('descripcion').value || "(sin descripción)";
@@ -89,62 +82,12 @@
     let body = `Ubicación: ${locationId}\nTipo: ${tipo}\nHora: ${ts}\nAnónimo: ${anon ? "Sí" : "No"}\n\nDescripción:\n${desc}\n\n(Adjunta foto manualmente si tu app de correo lo permite)`;
     body = encodeURIComponent(body);
 
-    
-    const to = "jesalex022008@gmail.com"; //correo fijo de recepción
+    const to = "jesalex022008@gmail.com"; 
     const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
     window.location.href = mailto;
   });
 
-  // Envío por webhook
-  const btnWebhook = document.getElementById('btnWebhook');
-  if (webhookUrl) {
-    btnWebhook.classList.remove('hidden');
-    document.getElementById('webhookInfo').classList.remove('hidden');
-  }
-
-  btnWebhook.addEventListener('click', async () => {
-    if (!webhookUrl) return alert("No hay webhook configurado. Edita el archivo y añade webhookUrl.");
-
-    const tipo = document.getElementById('tipo').value;
-    const desc = document.getElementById('descripcion').value || "";
-    const anon = document.getElementById('anon').checked;
-    const ts = new Date().toISOString();
-
-    const formData = new FormData();
-    formData.append('ubicacion', locationId);
-    formData.append('tipo', tipo);
-    formData.append('descripcion', desc);
-    formData.append('anonimo', anon ? "true" : "false");
-    formData.append('timestamp', ts);
-
-    const file = fotoInput.files && fotoInput.files[0];
-    if (file) formData.append('foto', file, file.name);
-
-    btnWebhook.disabled = true;
-    btnWebhook.textContent = "Enviando...";
-
-    try {
-      const resp = await fetch(webhookUrl, { method: 'POST', body: formData });
-      if (!resp.ok) throw new Error("Error en el servidor: " + resp.status);
-      alert("Reporte enviado correctamente. ¡Gracias!");
-      
-      // reset simple:
-      document.getElementById('descripcion').value = "";
-      fotoInput.value = "";
-      preview.classList.add('hidden');
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo enviar el reporte (ver consola). Si no tienes webhook, usa 'Enviar por correo'.");
-    } finally {
-      btnWebhook.disabled = false;
-      btnWebhook.textContent = "Enviar a mantenimiento (webhook)";
-    }
-  });
-
-  
-
-
-
 </script>
+
 </body>
 </html>
