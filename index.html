@@ -61,11 +61,8 @@
 
 
 <script>
-  // -------- CONFIG --------
-  // Si tienes un webhook para recibir POST (JSON + multipart), pega la URL aquí.
-  // Ejemplo: const webhookUrl = "https://hooks.example.com/tu-webhook";
-  const webhookUrl = "jesalex022008@gmail.com"; // <- PON AQUI TU WEBHOOK si tienes. Si queda vacío, el botón webhook se ocultará.
-  // ------------------------
+  
+  const webhookUrl = ""; 
 
   const params = new URLSearchParams(location.search);
   const locationId = params.get('id') || params.get('loc') || "CBTIS15";
@@ -93,12 +90,12 @@
     body = encodeURIComponent(body);
 
     
-    const to = "jesalex022008@gmail.com"; // <-- opcional: correo fijo de recepción
+    const to = "jesalex022008@gmail.com"; //correo fijo de recepción
     const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
     window.location.href = mailto;
   });
 
-  // Envío por webhook (si está configurado)
+  // Envío por webhook
   const btnWebhook = document.getElementById('btnWebhook');
   if (webhookUrl) {
     btnWebhook.classList.remove('hidden');
@@ -130,6 +127,7 @@
       const resp = await fetch(webhookUrl, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error("Error en el servidor: " + resp.status);
       alert("Reporte enviado correctamente. ¡Gracias!");
+      
       // reset simple:
       document.getElementById('descripcion').value = "";
       fotoInput.value = "";
